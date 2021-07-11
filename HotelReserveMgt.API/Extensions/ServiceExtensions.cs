@@ -14,7 +14,7 @@ namespace HotelReserveMgt.API.Extensions
         {
             services.AddSwaggerGen(c =>
             {
-                c.IncludeXmlComments(string.Format(@"{0}\HotelReserveMgt.API", System.AppDomain.CurrentDomain.BaseDirectory));
+                //c.IncludeXmlComments(string.Format(@"{0}\HotelReserveMgt.API.xml", System.AppDomain.CurrentDomain.BaseDirectory));
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
