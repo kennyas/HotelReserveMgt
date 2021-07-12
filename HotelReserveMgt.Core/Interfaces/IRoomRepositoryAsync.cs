@@ -8,6 +8,6 @@ namespace HotelReserveMgt.Core.Interfaces
 {
     public interface IRoomRepositoryAsync : IGenericRepositoryAsync<Room>
     {
-        Task<bool> IsUniqueBarcodeAsync(string barcode);
+        Task<bool> IsUniqueRoomcodeAsync(string barcode);
     }
 }

@@ -18,10 +18,10 @@ namespace HotelReserveMgt.Infrastructure.Persistence.Repositories
             _products = dbContext.Set<Room>();
         }
 
-        public Task<bool> IsUniqueBarcodeAsync(string barcode)
+        public Task<bool> IsUniqueRoomcodeAsync(string roomcode)
         {
             return _products
-                .AllAsync(p => p.Barcode != barcode);
+                .AllAsync(p => p.RoomCode != roomcode);
         }
     }
 }
