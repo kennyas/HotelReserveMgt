@@ -1,4 +1,5 @@
-﻿using HotelReserveMgt.Core.Interfaces;
+﻿using HotelReserveMgt.Core.Application.Configurations;
+using HotelReserveMgt.Core.Interfaces;
 using HotelReserveMgt.Infrastructure.Persistence.Contexts;
 using HotelReserveMgt.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -21,10 +22,11 @@ namespace HotelReserveMgt.Infrastructure.Persistence
             }
             else
             {
-                services.AddDbContext<ApplicationDbContext>(options =>
-               options.UseSqlServer(
-                   configuration.GetConnectionString("DefaultConnection"),
-                   b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+                // services.AddDbContext<ApplicationDbContext>(options =>
+                //options.UseSqlServer(
+                //    configuration.GetConnectionString("DefaultConnection"),
+                //    b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+                services.Configure<RoomDatabaseConfiguration>(configuration.GetSection("RoomDatabaseConfiguration"));
             }
             #region Repositories
             services.AddTransient(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));

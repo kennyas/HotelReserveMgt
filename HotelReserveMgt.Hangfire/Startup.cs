@@ -1,4 +1,8 @@
 using Hangfire;
+using Hangfire.Mongo;
+using Hangfire.Mongo.Migration.Strategies;
+using Hangfire.Mongo.Migration.Strategies.Backup;
+using HotelReserveMgt.Core.Application.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -29,14 +33,39 @@ namespace HotelReserveMgt.Hangfire
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //var appSettingsSection = Configuration.GetSection("AppSettings");
+            var mongoConnection = Configuration.GetConnectionString("RoomDatabaseConfiguration");
+            
+            //services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
+            // services.AddHangfire(configuration => configuration
+            //    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+            //    .UseSimpleAssemblyNameTypeSerializer()
+            //    .UseRecommendedSerializerSettings()
+            //    .UseMongoStorage(mongoConnection, "Hangfire", new MongoStorageOptions
+            //    {
+            //        MigrationOptions = new MongoMigrationOptions
+            //        {
+            //            MigrationStrategy = new MigrateMongoMigrationStrategy(),
+            //            BackupStrategy = new CollectionMongoBackupStrategy()
+            //        },
+            //        Prefix = "hangfire.mongo",
+            //        CheckConnection = true
+            //    })
+            //);
 
-            //services.Configure<AppSettings>(appSettingsSection);
+            var migrationOptions = new MongoMigrationOptions
+            {
+                MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                BackupStrategy = new CollectionMongoBackupStrategy()
+            };
 
-            ////read into the appSettings class
-            //var appSettings = appSettingsSection.Get<AppSettings>();
-            //services.AddHangfire(x => x.UseSqlServerStorage(appSettings.ConnectionStrings.Hangfire));
-            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddHangfire(config =>
+            {
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
+                config.UseSimpleAssemblyNameTypeSerializer();
+                config.UseRecommendedSerializerSettings();
+                config.UseMongoStorage(mongoConnection, "Hangfire", new MongoStorageOptions { MigrationOptions = migrationOptions });
+
+            });
             services.AddHangfireServer();
             services.AddControllers();
             services.AddSwaggerGen(c =>
