@@ -36,7 +36,7 @@ namespace HotelReserveMgt.Hangfire
             ////read into the appSettings class
             //var appSettings = appSettingsSection.Get<AppSettings>();
             //services.AddHangfire(x => x.UseSqlServerStorage(appSettings.ConnectionStrings.Hangfire));
-            services.AddHangfire(x => x.UseSqlServerStorage("DefaultConnection"));
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
             services.AddHangfireServer();
             services.AddControllers();
             services.AddSwaggerGen(c =>

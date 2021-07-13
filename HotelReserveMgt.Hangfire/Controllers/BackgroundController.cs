@@ -1,9 +1,16 @@
 ﻿using Hangfire;
+using HotelReserveMgt.Core.DTOs.Email;
+using HotelReserveMgt.Core.Exceptions;
+using HotelReserveMgt.Core.Interfaces;
+using HotelReserveMgt.Infrastructure.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HotelReserveMgt.Hangfire.Controllers
@@ -12,45 +19,46 @@ namespace HotelReserveMgt.Hangfire.Controllers
     [ApiController]
     public class BackgroundController : ControllerBase
     {
-        [HttpPost]
-        [Route("welcome")]
-        public IActionResult Welcome(string userName)
+        private readonly IEmailService _emailService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        public BackgroundController(IEmailService emailService, UserManager<ApplicationUser> userManager)
         {
-            var jobId = BackgroundJob.Enqueue(() => SendWelcomeMail(userName));
+            _emailService = emailService;
+            _userManager = userManager;
+
+        }
+        [HttpPost]
+        [Route("sendEmail")]
+        public IActionResult SendEmail(string userName)
+        {
+            var origin = Request.Headers["origin"];
+            var jobId = BackgroundJob.Enqueue(() => SendRegistrationMail(userName), origin);
             return Ok($"Job Id {jobId} Completed. Welcome Mail Sent!");
         }
 
-        public void SendWelcomeMail(string userName)
+        private async Task<string> SendVerificationEmail(ApplicationUser user, string origin)
+        {
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var route = "api/account/confirm-email/";
+            var _enpointUri = new Uri(string.Concat($"{origin}/", route));
+            var verificationUri = QueryHelpers.AddQueryString(_enpointUri.ToString(), "userId", user.Id);
+            verificationUri = QueryHelpers.AddQueryString(verificationUri, "code", code);
+            //Email Service Call Here
+            return verificationUri;
+        }
+        public async Task SendRegistrationMail(string userName, string origin)
         {
             //Logic to Mail the user
-            Console.WriteLine($"Welcome to our application, {userName}");
+            var user = await _userManager.FindByNameAsync(userName);
+            var verificationUri = await SendVerificationEmail(user, origin);
+            if (user != null)
+            {
+                throw new ApiException($"Username '{userName}' does not exist.");
+            }
+            await _emailService.SendAsync(new EmailRequest() { From = "kehindeasishana@gmail.com", To = user.Email, Body = $"Please confirm your account by visiting this URL {verificationUri}", Subject = "Confirm Registration" });
         }
-        [HttpPost]
-        [Route("delayedWelcome")]
-        public IActionResult DelayedWelcome(string userName)
-        {
-            var jobId = BackgroundJob.Schedule(() => SendDelayedWelcomeMail(userName), TimeSpan.FromMinutes(2));
-            return Ok($"Job Id {jobId} Scheduled. Delayed Welcome Mail will be sent in 2 minutes!");
-        }
-
-        public void SendDelayedWelcomeMail(string userName)
-        {
-            //Logic to Mail the user
-            Console.WriteLine($"Welcome to our application, {userName}");
-        }
-        [HttpPost]
-        [Route("invoice")]
-        public IActionResult Invoice(string userName)
-        {
-            RecurringJob.AddOrUpdate(() => SendDelayedWelcomeMail(userName), Cron.Monthly);
-            return Ok($"Recurring Job Scheduled. Invoice will be mailed Monthly for {userName}!");
-        }
-
-        public void SendInvoiceMail(string userName)
-        {
-            //Logic to Mail the user
-            Console.WriteLine($"Here is your invoice, {userName}");
-        }
+        
         [HttpPost]
         [Route("unsubscribe")]
         public IActionResult Unsubscribe(string userName)
