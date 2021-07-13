@@ -32,7 +32,7 @@ namespace HotelReserveMgt.Hangfire.Controllers
         public IActionResult SendEmail(string userName)
         {
             var origin = Request.Headers["origin"];
-            var jobId = BackgroundJob.Enqueue(() => SendRegistrationMail(userName), origin);
+            var jobId = BackgroundJob.Enqueue(() => SendRegistrationMail(userName, origin));
             return Ok($"Job Id {jobId} Completed. Welcome Mail Sent!");
         }
 
