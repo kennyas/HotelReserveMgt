@@ -17,10 +17,12 @@ namespace HotelReserveMgt.API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IRoomService _roomService;
+        private readonly IClientService _clientService;
         private readonly IMapper _mapper;
-        public AdminController(IRoomService roomService, IMapper mapper)
+        public AdminController(IRoomService roomService, IClientService clientService, IMapper mapper)
         {
             _roomService = roomService;
+            _clientService = clientService;
             _mapper = mapper;
         }
         [HttpPost("setuproom")]
@@ -34,13 +36,8 @@ namespace HotelReserveMgt.API.Controllers
         [HttpGet]
         public async Task<IActionResult> DashboardData()
         {
-            var dashboardItem = new Room();
-            var totalRooms = await _roomService.GetAllAsync();
-            var roomCount = totalRooms.Count();
-            var occupiedRooms = await _roomService.GetAllAsync();
-            var occupiedCount = occupiedRooms.Count();
-            var freeRoom = totalRooms.Count();
-            return Ok();
+            
+            return Ok(await _clientService.DashboardRecord());
         }
     }
 }

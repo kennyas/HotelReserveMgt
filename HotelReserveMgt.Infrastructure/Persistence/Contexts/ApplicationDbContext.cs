@@ -31,11 +31,11 @@ namespace HotelReserveMgt.Infrastructure.Persistence.Contexts
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.Created = _dateTime.NowUtc;
+                        entry.Entity.DateCreated = _dateTime.NowUtc;
                         entry.Entity.CreatedBy = _authenticatedUser.UserId;
                         break;
                     case EntityState.Modified:
-                        entry.Entity.LastModified = _dateTime.NowUtc;
+                        entry.Entity.LastModifiedDate = _dateTime.NowUtc;
                         entry.Entity.LastModifiedBy = _authenticatedUser.UserId;
                         break;
                 }

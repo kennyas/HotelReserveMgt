@@ -10,6 +10,6 @@ namespace HotelReserveMgt.Core.Domain.Entities
         public string Description { get; set; }
         public long RoomId { get; set; }
         public long CustomerId { get; set; }
-        public DateTime ReservationDate { get; set; }
+        public string ReservationStatus { get; set; }
     }
 }

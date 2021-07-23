@@ -20,15 +20,10 @@ namespace HotelReserveMgt.Infrastructure.Services
     public class RoomService : IGenericRepositoryAsync<Room>, IRoomService
     {
         private readonly IMongoCollection<Room> _context;
-        private readonly IMongoDatabaseSettings _settings;
-
-        //public RoomService(ApplicationDbContext dbContext) : base(dbContext)
-        //{
-        //    //_rooms = dbContext.Set<Room>();
-        //}
-        public RoomService(IMongoDatabaseSettings settings)
+        private readonly IReservationService _reservationService;
+        public RoomService( IReservationService reservationService, IMongoDatabaseSettings settings)
         {
-            //_settings = settings;
+            _reservationService = reservationService;
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _context = database.GetCollection<Room>(settings.CollectionName);
@@ -38,7 +33,58 @@ namespace HotelReserveMgt.Infrastructure.Services
         {
             return await _context.Find(c => true).ToListAsync();
         }
+        public async Task<List<Room>> GetAllFreeAsync()
+        {
+            return await _context.Find(c =>c.IsActive == false).ToListAsync();
+        }
+        public async Task<List<Room>> GetAllOccupiedAsync()
+        {
+            return await _context.Find(c => c.IsActive == true).ToListAsync();
+        }
+        public async Task<List<Room>> GetAllCheckedInAsync()
+        {
+            var bookedList = new List<Room>();
+            var queryRes = await _context.Find(c => c.IsActive == true).ToListAsync();
+            foreach(var item in queryRes)
+            {
+                var booked = await _reservationService.GetByIdAsync(item.Id.ToString());
+                if(booked.ReservationStatus == "Occupied")
+                {
+                    bookedList.Add(item);
+                }
+            }
+            return bookedList; //await _context.Find(c => c.IsActive == true).ToListAsync();
+        }
 
+        public async Task<List<Room>> GetAllCheckedOutAsync()
+        {
+            var bookedList = new List<Room>();
+            var queryRes = await _context.Find(c => c.IsActive == true).ToListAsync();
+            foreach (var item in queryRes)
+            {
+                var booked = await _reservationService.GetByIdAsync(item.Id.ToString());
+                if (booked.ReservationStatus == "Released")
+                {
+                    bookedList.Add(item);
+                }
+            }
+            return bookedList; 
+        }
+
+        public async Task<List<Room>> GetAllRevenueAsync()
+        {
+            var bookedList = new List<Room>();
+            var queryRes = await _context.Find(c => c.IsActive == true).ToListAsync();
+            foreach (var item in queryRes)
+            {
+                var booked = await _reservationService.GetByIdAsync(item.Id.ToString());
+                if (booked.ReservationStatus == "Booked")
+                {
+                    bookedList.Add(item);
+                }
+            }
+            return bookedList;
+        }
         public async Task<Room> GetByIdAsync(string id)
         {
             return await _context.Find<Room>(id).FirstOrDefaultAsync();
@@ -59,6 +105,8 @@ namespace HotelReserveMgt.Infrastructure.Services
         {
             await _context.DeleteOneAsync(id);
         }
+
+       
 
     }
 }
