@@ -33,7 +33,7 @@ namespace HotelReserveMgt.API.Controllers
             //if (res != null) res.RoomStatus = true;
             return Ok(await _roomService.CreateAsync(room));
         }
-        [HttpGet]
+        [HttpGet("dashboard")]
         public async Task<IActionResult> DashboardData()
         {
             
