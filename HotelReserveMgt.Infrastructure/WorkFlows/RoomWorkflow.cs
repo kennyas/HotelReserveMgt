@@ -23,6 +23,7 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
 
         protected StateMachine<RoomState, RoomTrigger>.TriggerWithParameters<RegisterRequest> _assignTrigger;
         protected StateMachine<RoomState, RoomTrigger>.TriggerWithParameters<RegisterRequest> _transferTrigger;
+        public RoomState CurrentState = RoomState.New;
 
         public RoomWorkflow(Room data)
         {
@@ -52,54 +53,50 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
             _state = RoomState.New;
 
 
-            _machine = new StateMachine<RoomState, RoomTrigger>(() => AssetState, s => AssetState = s);
+            _machine = new StateMachine<RoomState, RoomTrigger>(() => CurrentState, s => CurrentState = s);
 
-            _assignTrigger = _machine.SetTriggerParameters<RegisterRequest>(RoomTrigger.Assigned);
-            _transferTrigger = _machine.SetTriggerParameters<RegisterRequest>(RoomTrigger.Transferred);
+            //_assignTrigger = _machine.SetTriggerParameters<RegisterRequest>(RoomTrigger.Assigned);
+            //_transferTrigger = _machine.SetTriggerParameters<RegisterRequest>(RoomTrigger.Transferred);
 
 
             _machine.Configure(RoomState.New)
-                    .Permit(RoomTrigger.Tested, RoomState.Free)
-                    .OnEntry(() => OnEntry())
-                    .OnActivate(() => OnActivate())
-                    .Permit(RoomTrigger.Booked, RoomState.Unavailable)
-                    .OnDeactivate(() => OnDeactivate())
-                    .OnExit(() => OnExit());
+                    .Permit(RoomTrigger.Booked, RoomState.Reserved)
+                    .PermitIf(RoomTrigger.Clean,RoomState.Cleaned)
+                    .PermitReentry(RoomTrigger.Released);
+            //.OnEntry(() => OnEntry())
+            //.OnActivate(() => OnActivate())
+            //.Permit(RoomTrigger.Booked, RoomState.Unavailable)
+            //.OnDeactivate(() => OnDeactivate())
+            //.OnExit(() => OnExit());
 
-            _machine.Configure(RoomState.Free)
-                     .OnEntry(() => OnEntry())
-                     .OnActivate(() => OnActivate())
-                     .Permit(RoomTrigger.Assigned, RoomState.Reserved)
-                     .Permit(RoomTrigger.Booked, RoomState.Unavailable)
-                     .OnExit(() => OnExit())
-                    .OnEntryFrom(RoomTrigger.Released, () => ProcessDecommission())
-                     .OnDeactivate(() => OnDeactivate());
+            _machine.Configure(RoomState.Reserved)
+                     .Permit(RoomTrigger.Assigned, RoomState.Occupied);
+            // .Permit(RoomTrigger.Booked, RoomState.Unavailable)
+            // .OnExit(() => OnExit())
+            //.OnEntryFrom(RoomTrigger.Released, () => ProcessDecommission())
+            // .OnDeactivate(() => OnDeactivate());
 
 
             _machine.Configure(RoomState.Occupied)
-                    .OnEntry(() => OnEntry())
-                    .OnEntryFrom(_assignTrigger, owner => SetOwner(owner))
-                    .OnEntryFrom(_transferTrigger, owner => SetOwner(owner))
-                    .OnActivate(() => OnActivate())
-                    .OnExit(() => OnExit())
-                    .OnDeactivate(() => OnDeactivate())
-                    .PermitReentry(RoomTrigger.Transferred)
-                    .Permit(RoomTrigger.Released, RoomState.Free)
-                    .Permit(RoomTrigger.Booked, RoomState.Unavailable);
+                    .Permit(RoomTrigger.RoomKeyObtained, RoomState.Unavailable);
+                    //.OnEntry(() => OnEntry())
+                    //.OnEntryFrom(_assignTrigger, owner => SetOwner(owner))
+                    //.OnEntryFrom(_transferTrigger, owner => SetOwner(owner))
+                    //.OnActivate(() => OnActivate())
+                    //.OnExit(() => OnExit())
+                    //.OnDeactivate(() => OnDeactivate())
+                    //.PermitReentry(RoomTrigger.Transferred)
+                    //.Permit(RoomTrigger.Released, RoomState.Free)
+                    //.Permit(RoomTrigger.Booked, RoomState.Unavailable);
 
 
 
-            _machine.Configure(RoomState.Unavailable)
-                    .OnEntry(() => OnEntry())
-                    .OnActivate(() => OnActivate())
-                    .OnExit(() => OnExit())
-                    .OnDeactivate(() => OnDeactivate());
-            //.PermitIf(RoomTrigger.Found, RoomState.Free, () => (_previousState != RoomState.New))
-            //.PermitIf(RoomTrigger.Found, RoomState.New, () => (_previousState == RoomState.New));
-
-
-
-
+            //_machine.Configure(RoomState.Unavailable)
+            //        .OnEntry(() => OnEntry())
+            //        .OnActivate(() => OnActivate())
+            //        .OnExit(() => OnExit())
+            //        .OnDeactivate(() => OnDeactivate());
+           
 
         }
 
@@ -151,10 +148,10 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
             }
         }
 
-        public void FinishedTesting()
-        {
-            Fire(RoomTrigger.Tested);
-        }
+        //public void FinishedTesting()
+        //{
+        //    Fire(RoomTrigger.Tested);
+        //}
 
         public void Assign(RegisterRequest owner)
         {

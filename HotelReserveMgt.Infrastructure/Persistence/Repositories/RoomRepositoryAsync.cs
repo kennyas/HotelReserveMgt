@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 
 namespace HotelReserveMgt.Infrastructure.Persistence.Repositories
 {
-    public class RoomRepositoryAsync : GenericRepositoryAsync<Room>, IRoomRepositoryAsync
-    {
-        private readonly DbSet<Room> _products;
+    //public class RoomRepositoryAsync : GenericRepositoryAsync<Room>, IRoomRepositoryAsync
+    //{
+    //    private readonly DbSet<Room> _rooms;
 
-        public RoomRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
-        {
-            _products = dbContext.Set<Room>();
-        }
+    //    public RoomRepositoryAsync(ApplicationDbContext dbContext) : base(dbContext)
+    //    {
+    //        _rooms = dbContext.Set<Room>();
+    //    }
 
-        public Task<bool> IsUniqueRoomcodeAsync(string roomcode)
-        {
-            return _products
-                .AllAsync(p => p.RoomCode != roomcode);
-        }
-    }
+    //    public Task<bool> IsUniqueRoomcodeAsync(string roomcode)
+    //    {
+    //        return _rooms
+    //            .AllAsync(p => p.RoomCode != roomcode);
+    //    }
+    //}
 }

@@ -7,12 +7,12 @@ namespace HotelReserveMgt.Core.Enums
     public enum RoomTrigger 
     { 
         AddRoom, 
-        Tested,
         Assigned,
         Booked,
+        RoomKeyObtained,
         Transferred,
         Released,
-        ReviewBookRooms
+        Clean
     };
 
 }

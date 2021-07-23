@@ -12,6 +12,7 @@ namespace HotelReserveMgt.Core.Domain.Entities
         public string RoomCode { get; set; }
         public string Description { get; set; }
         public decimal LodgeFee { get; set; }
+        public bool? RoomStatus { get; set; }
         public RegisterRequest Client { get; set; }
     }
 }

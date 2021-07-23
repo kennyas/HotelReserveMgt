@@ -3,6 +3,8 @@ using Hangfire.Mongo;
 using Hangfire.Mongo.Migration.Strategies;
 using Hangfire.Mongo.Migration.Strategies.Backup;
 using HotelReserveMgt.Core.Application.Configurations;
+using HotelReserveMgt.Core.Domain;
+using HotelReserveMgt.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
@@ -33,8 +36,8 @@ namespace HotelReserveMgt.Hangfire
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var mongoConnection = Configuration.GetConnectionString("RoomDatabaseConfiguration");
-            
+            var mongoConnection = Configuration.GetConnectionString("DatabaseSettings");
+
             //services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
             // services.AddHangfire(configuration => configuration
             //    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -51,6 +54,8 @@ namespace HotelReserveMgt.Hangfire
             //        CheckConnection = true
             //    })
             //);
+            services.Configure<MongoDatabaseSettings>(Configuration.GetSection(nameof(MongoDatabaseSettings)));
+            services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<MongoDatabaseSettings>>().Value);
 
             var migrationOptions = new MongoMigrationOptions
             {
