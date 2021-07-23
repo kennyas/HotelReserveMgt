@@ -17,12 +17,12 @@ namespace HotelReserveMgt.API.Controllers
     {
         private readonly IRoomService _roomService;
         private readonly IClientService _clientService;
-        private readonly IMapper _mapper;
-        public ClientController(IRoomService roomService, IClientService clientService, IMapper mapper)
+        private readonly IReservationService _reservationService;
+        public ClientController(IRoomService roomService, IClientService clientService, IReservationService reservationService)
         {
             _roomService = roomService;
             _clientService = clientService;
-            _mapper = mapper;
+            _reservationService = reservationService;
         }
         [HttpPost("register-customer")]
         public async Task<IActionResult> RegisterCustomerAsync([FromBody]Customer request)
@@ -32,10 +32,10 @@ namespace HotelReserveMgt.API.Controllers
         }
 
         [HttpPost("bookroom")]
-        public async Task<IActionResult> BookRoomAsync(RoomRequestDto request)
+        public async Task<IActionResult> BookRoomAsync([FromBody] RoomReservation roomRequest)
         {
-            var room = _mapper.Map<Room>(request);
-            return Ok(await _roomService.CreateAsync(room));
+            //var room = _mapper.Map<Room>(request);
+            return Ok(await _reservationService.CreateAsync(roomRequest));
         }
     }
 }

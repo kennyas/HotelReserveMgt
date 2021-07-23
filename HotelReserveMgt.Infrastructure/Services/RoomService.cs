@@ -60,9 +60,5 @@ namespace HotelReserveMgt.Infrastructure.Services
             await _context.DeleteOneAsync(id);
         }
 
-        public void ReserveRoom(string userId)
-        {
-
-        }
     }
 }

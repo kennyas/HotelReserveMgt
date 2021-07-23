@@ -10,35 +10,33 @@ using System.Threading.Tasks;
 
 namespace HotelReserveMgt.Infrastructure.Services
 {
-    public class ClientService: IGenericRepositoryAsync<Customer>, IClientService
+    public class ReservationService : IGenericRepositoryAsync<RoomReservation>, IReservationService
     {
-        private readonly IMongoCollection<Customer> _context;
-
-        public ClientService(IMongoDatabaseSettings settings)
+        private readonly IMongoCollection<RoomReservation> _context;
+        public ReservationService(IMongoDatabaseSettings settings)
         {
-            //_settings = settings;
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _context = database.GetCollection<Customer>(settings.CollectionName);
+            _context = database.GetCollection<RoomReservation>(settings.CollectionName);
         }
 
-        public async Task<List<Customer>> GetAllAsync()
+        public async Task<List<RoomReservation>> GetAllAsync()
         {
             return await _context.Find(c => true).ToListAsync();
         }
 
-        public async Task<Customer> GetByIdAsync(string id)
+        public async Task<RoomReservation> GetByIdAsync(string id)
         {
-            return await _context.Find<Customer>(id).FirstOrDefaultAsync();
+            return await _context.Find<RoomReservation>(id).FirstOrDefaultAsync();
         }
 
-        public async Task<Customer> CreateAsync(Customer obj)
+        public async Task<RoomReservation> CreateAsync(RoomReservation obj)
         {
             await _context.InsertOneAsync(obj);
             return obj;
         }
 
-        public async Task UpdateAsync(string id, Customer entity)
+        public async Task UpdateAsync(string id, RoomReservation entity)
         {
             await _context.ReplaceOneAsync(id, entity);
         }
@@ -47,6 +45,5 @@ namespace HotelReserveMgt.Infrastructure.Services
         {
             await _context.DeleteOneAsync(id);
         }
-
     }
 }
