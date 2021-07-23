@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using HotelReserveMgt.Core.Domain.Entities;
 using HotelReserveMgt.Core.DTOs.Email;
 using HotelReserveMgt.Core.Exceptions;
 using HotelReserveMgt.Core.Interfaces;
@@ -21,21 +22,30 @@ namespace HotelReserveMgt.Hangfire.Controllers
     {
         private readonly IEmailService _emailService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public BackgroundController(IEmailService emailService, UserManager<ApplicationUser> userManager)
+        private readonly IRoomService _roomService;
+        public BackgroundController(IEmailService emailService, IRoomService roomService, UserManager<ApplicationUser> userManager)
         {
             _emailService = emailService;
+            _roomService = roomService;
             _userManager = userManager;
 
         }
         [HttpPost]
-        [Route("sendEmail")]
-        public IActionResult SendEmail(string userName)
+        [Route("registrationEmail")]
+        public IActionResult RegistrationEmail(string userName)
         {
             var origin = Request.Headers["origin"];
             var jobId = BackgroundJob.Enqueue(() => SendRegistrationMail(userName, origin));
             return Ok($"Job Id {jobId} Completed. Welcome Mail Sent!");
         }
-
+        [HttpPost]
+        [Route("roomConfirmationEmail")]
+        public IActionResult RoomConfirmationEmail(string roomId)
+        {
+            var origin = Request.Headers["origin"];
+            var jobId = BackgroundJob.Enqueue(() => SendRoomConfirmationNotification(origin));
+            return Ok($"Job Id {jobId} Completed. Welcome Mail Sent!");
+        }
         private async Task<string> SendVerificationEmail(ApplicationUser user, string origin)
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -58,20 +68,28 @@ namespace HotelReserveMgt.Hangfire.Controllers
             }
             await _emailService.SendAsync(new EmailRequest() { From = "kehindeasishana@gmail.com", To = user.Email, Body = $"Please confirm your account by visiting this URL {verificationUri}", Subject = "Confirm Registration" });
         }
-        
-        [HttpPost]
-        [Route("unsubscribe")]
-        public IActionResult Unsubscribe(string userName)
+
+        public async Task SendRoomConfirmationNotification(string origin)
         {
-            var jobId = BackgroundJob.Enqueue(() => UnsubscribeUser(userName));
-            BackgroundJob.ContinueJobWith(jobId, () => Console.WriteLine($"Sent Confirmation Mail to {userName}"));
-            return Ok($"Unsubscribed");
+            var roomList = await _roomService.GetAllAsync();
+            var room = roomList.FirstOrDefault();
+            var verificationUri = await SendRoomVerificationEmail(room, origin);
+            if (room == null)
+            {
+                throw new ApiException($"Room with Id '{room.Id}' does not exist.");
+            }
+            await _emailService.SendAsync(new EmailRequest() { From = "kehindeasishana@gmail.com", To = room.Client.Email, Body = $"Please confirm your account by visiting this URL {verificationUri}", Subject = "Confirm Registration" });
         }
 
-        public void UnsubscribeUser(string userName)
+        private async Task<string> SendRoomVerificationEmail(Room room, string origin)
         {
-            //Logic to Unsubscribe the user
-            Console.WriteLine($"Unsubscribed {userName}");
+            var code = ""; //await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var route = "api/account/confirm-email/";
+            var _enpointUri = new Uri(string.Concat($"{origin}/", route));
+            var verificationUri = QueryHelpers.AddQueryString(_enpointUri.ToString(), "userId", room.Id.ToString());
+            verificationUri = QueryHelpers.AddQueryString(verificationUri, "code", code);
+            return verificationUri;
         }
     }
 }
