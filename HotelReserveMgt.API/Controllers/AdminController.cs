@@ -31,5 +31,16 @@ namespace HotelReserveMgt.API.Controllers
             //if (res != null) res.RoomStatus = true;
             return Ok(await _roomService.CreateAsync(room));
         }
+        [HttpGet]
+        public async Task<IActionResult> DashboardData()
+        {
+            var dashboardItem = new Room();
+            var totalRooms = await _roomService.GetAllAsync();
+            var roomCount = totalRooms.Count();
+            var occupiedRooms = await _roomService.GetAllAsync();
+            var occupiedCount = occupiedRooms.Count();
+            var freeRoom = totalRooms.Count();
+            return Ok();
+        }
     }
 }
