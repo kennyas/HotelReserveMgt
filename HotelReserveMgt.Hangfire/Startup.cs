@@ -54,8 +54,8 @@ namespace HotelReserveMgt.Hangfire
             //        CheckConnection = true
             //    })
             //);
-            services.Configure<MongoDatabaseSettings>(Configuration.GetSection(nameof(MongoDatabaseSettings)));
-            services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<MongoDatabaseSettings>>().Value);
+            services.Configure<HotelMgtDatabaseSettings>(Configuration.GetSection(nameof(HotelMgtDatabaseSettings)));
+            services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<HotelMgtDatabaseSettings>>().Value);
 
             var migrationOptions = new MongoMigrationOptions
             {

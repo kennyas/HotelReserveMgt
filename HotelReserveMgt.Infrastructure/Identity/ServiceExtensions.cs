@@ -40,8 +40,8 @@ namespace HotelReserveMgt.Infrastructure.Identity
                 //    configuration.GetConnectionString("IdentityConnection"),
                 //    b => b.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)));
 
-                services.Configure<MongoDatabaseSettings>(configuration.GetSection(nameof(MongoDatabaseSettings)));
-                services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<MongoDatabaseSettings>>().Value);
+                services.Configure<HotelMgtDatabaseSettings>(configuration.GetSection(nameof(HotelMgtDatabaseSettings)));
+                services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<HotelMgtDatabaseSettings>>().Value);
             }
             services.AddIdentityMongoDbProvider<AppUser, MongoRole>(identity =>
             {

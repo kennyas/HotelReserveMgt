@@ -29,7 +29,7 @@ namespace HotelReserveMgt.Infrastructure.Persistence.Repositories
             //_settings = settings.Value;
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _context = database.GetCollection<T>(settings.CollectionName);
+            _context = database.GetCollection<T>(settings.RoomCollectionName);
         }
 
         public async Task<List<T>> GetAllAsync()
