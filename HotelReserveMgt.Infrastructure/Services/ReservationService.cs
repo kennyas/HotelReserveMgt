@@ -13,13 +13,18 @@ namespace HotelReserveMgt.Infrastructure.Services
     public class ReservationService : IGenericRepositoryAsync<RoomReservation>, IReservationService
     {
         private readonly IMongoCollection<RoomReservation> _context;
-        public ReservationService(IMongoDatabaseSettings settings)
+        //public ReservationService(IMongoDatabaseSettings settings)
+        //{
+        //    var client = new MongoClient(settings.ConnectionString);
+        //    var database = client.GetDatabase(settings.DatabaseName);
+        //    _context = database.GetCollection<RoomReservation>(settings.CollectionName);
+        //}
+        public ReservationService(IMongoCollection<RoomReservation> context)
         {
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-            _context = database.GetCollection<RoomReservation>(settings.CollectionName);
+            //var client = new MongoClient(settings.ConnectionString);
+            //var database = client.GetDatabase(settings.DatabaseName);
+            _context = context;//database.GetCollection<RoomReservation>(settings.CollectionName);
         }
-
         public async Task<List<RoomReservation>> GetAllAsync()
         {
             return await _context.Find(c => true).ToListAsync();

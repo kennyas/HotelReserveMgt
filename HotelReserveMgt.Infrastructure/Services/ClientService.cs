@@ -15,14 +15,20 @@ namespace HotelReserveMgt.Infrastructure.Services
     {
         private readonly IMongoCollection<Customer> _context;
         private readonly IRoomService _roomService;
-        public ClientService(IRoomService roomService, IMongoDatabaseSettings settings)
+        //public ClientService(IRoomService roomService, IMongoDatabaseSettings settings)
+        //{
+        //    _roomService = roomService;
+        //    var client = new MongoClient(settings.ConnectionString);
+        //    var database = client.GetDatabase(settings.DatabaseName);
+        //    _context = database.GetCollection<Customer>(settings.CollectionName);
+        //}
+        public ClientService(IRoomService roomService, IMongoCollection<Customer> context)
         {
             _roomService = roomService;
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-            _context = database.GetCollection<Customer>(settings.CollectionName);
+            //var client = new MongoClient(settings.ConnectionString);
+            //var database = client.GetDatabase(settings.DatabaseName);
+            _context = context;//database.GetCollection<Customer>(settings.CollectionName);
         }
-
         public async Task<List<Customer>> GetAllAsync()
         {
             return await _context.Find(c => true).ToListAsync();

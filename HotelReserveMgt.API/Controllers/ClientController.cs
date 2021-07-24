@@ -25,9 +25,8 @@ namespace HotelReserveMgt.API.Controllers
             _reservationService = reservationService;
         }
         [HttpPost("register-customer")]
-        public async Task<IActionResult> RegisterCustomerAsync([FromBody]Customer request)
+        public async Task<IActionResult> RegisterCustomerAsync([FromBody] Customer request)
         {
-            //var room = _mapper.Map<Room>(request);
             return Ok(await _clientService.CreateAsync(request));
         }
 

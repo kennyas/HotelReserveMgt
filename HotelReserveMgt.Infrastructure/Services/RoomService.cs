@@ -21,14 +21,20 @@ namespace HotelReserveMgt.Infrastructure.Services
     {
         private readonly IMongoCollection<Room> _context;
         private readonly IReservationService _reservationService;
-        public RoomService( IReservationService reservationService, IMongoDatabaseSettings settings)
+        //public RoomService( IReservationService reservationService, IMongoDatabaseSettings settings)
+        //{
+        //    _reservationService = reservationService;
+        //    var client = new MongoClient(settings.ConnectionString);
+        //    var database = client.GetDatabase(settings.DatabaseName);
+        //    _context = database.GetCollection<Room>(settings.CollectionName);
+        //}
+        public RoomService(IReservationService reservationService, IMongoCollection<Room> context)
         {
             _reservationService = reservationService;
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-            _context = database.GetCollection<Room>(settings.CollectionName);
+            //var client = new MongoClient(settings.ConnectionString);
+            //var database = client.GetDatabase(settings.DatabaseName);
+            _context = context;//database.GetCollection<Room>(settings.CollectionName);
         }
-
         public async Task<List<Room>> GetAllAsync()
         {
             return await _context.Find(c => true).ToListAsync();

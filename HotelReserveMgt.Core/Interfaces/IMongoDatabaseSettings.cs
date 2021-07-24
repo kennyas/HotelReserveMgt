@@ -8,6 +8,9 @@ namespace HotelReserveMgt.Core.Domain
     {
         string ConnectionString { get; set; }
         string DatabaseName { get; set; }
-        string CollectionName { get; set; }
+        public string RoomCollectionName { get; set; }
+        public string RoomReservationCollectionName { get; set; }
+        public string CustomerCollectionName { get; set; }
+        //string CollectionName { get; set; }
     }
 }

@@ -15,6 +15,11 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using HotelReserveMgt.Infrastructure.Persistence.Repositories;
+using HotelReserveMgt.Core.Domain;
+using Microsoft.Extensions.Options;
+using AspNetCore.Identity.Mongo;
+using AspNetCore.Identity.Mongo.Model;
 
 namespace HotelReserveMgt.Infrastructure.Identity
 {
@@ -22,6 +27,7 @@ namespace HotelReserveMgt.Infrastructure.Identity
     {
         public static void AddIdentityInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            var mongoConnection = configuration.GetConnectionString("DatabaseSettings");
             if (configuration.GetValue<bool>("UseInMemoryDatabase"))
             {
                 services.AddDbContext<IdentityContext>(options =>
@@ -29,11 +35,22 @@ namespace HotelReserveMgt.Infrastructure.Identity
             }
             else
             {
-                services.AddDbContext<IdentityContext>(options =>
-                options.UseSqlServer(
-                    configuration.GetConnectionString("IdentityConnection"),
-                    b => b.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)));
+                //services.AddDbContext<IdentityContext>(options =>
+                //options.UseSqlServer(
+                //    configuration.GetConnectionString("IdentityConnection"),
+                //    b => b.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)));
+
+                services.Configure<MongoDatabaseSettings>(configuration.GetSection(nameof(MongoDatabaseSettings)));
+                services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<MongoDatabaseSettings>>().Value);
             }
+            services.AddIdentityMongoDbProvider<AppUser, MongoRole>(identity =>
+            {
+                identity.Password.RequiredLength = 8;
+            },
+            mongo =>
+            {
+                mongo.ConnectionString = mongoConnection; //"mongodb://127.0.0.1:27017/identity";
+            }).AddDefaultTokenProviders();
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
             #region Services
             services.AddTransient<IAccountService, AccountService>();
