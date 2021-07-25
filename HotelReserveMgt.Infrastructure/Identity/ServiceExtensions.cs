@@ -49,8 +49,10 @@ namespace HotelReserveMgt.Infrastructure.Identity
             },
             mongo =>
             {
-                mongo.ConnectionString = mongoConnection; //"mongodb://127.0.0.1:27017/identity";
-            }).AddDefaultTokenProviders();
+                mongo.ConnectionString = mongoConnection;
+                mongo.UsersCollection = "AppUser";
+                mongo.RolesCollection = "MongoRole";
+            });
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
             #region Services
             services.AddTransient<IAccountService, AccountService>();
