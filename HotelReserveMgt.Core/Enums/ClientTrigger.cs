@@ -7,8 +7,10 @@ namespace HotelReserveMgt.Core.Enums
     public enum ClientTrigger 
     { 
         Register, 
-        SendMail, 
+        Occupy, 
         BookRoom, 
+        CheckedOut,
+        Cleaned,
         ConfirmationMail
     };
 }
