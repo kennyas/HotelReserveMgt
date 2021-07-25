@@ -27,7 +27,7 @@ namespace HotelReserveMgt.Infrastructure.Identity
     {
         public static void AddIdentityInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var mongoConnection = configuration.GetConnectionString("DatabaseSettings");
+            var mongoConnection = configuration.GetConnectionString("HotelMgtDatabaseSettings");
             if (configuration.GetValue<bool>("UseInMemoryDatabase"))
             {
                 services.AddDbContext<IdentityContext>(options =>
