@@ -1,4 +1,5 @@
-﻿using HotelReserveMgt.Core.Application.Configurations;
+﻿using Hangfire;
+using HotelReserveMgt.Core.Application.Configurations;
 using HotelReserveMgt.Core.DTOs.Account;
 using HotelReserveMgt.Core.DTOs.Email;
 using HotelReserveMgt.Core.Enums;
@@ -109,7 +110,8 @@ namespace HotelReserveMgt.Infrastructure.Services
                     await _userManager.AddToRoleAsync(user, Role.AdministratorRole.ToString());
                     var verificationUri = await SendVerificationEmail(user, origin);
                     //TODO: Attach Email Service here and configure it via appsettings
-                    await _emailService.SendAsync(new EmailRequest() { From = "kehindeasishana@gmail.com", To = user.Email, Body = $"Please confirm your account by visiting this URL {verificationUri}", Subject = "Confirm Registration" });
+                    BackgroundJob.Enqueue(() => _emailService.SendAsync(new EmailRequest() { From = "kehindeasishana@gmail.com", To = user.Email, Body = $"Please confirm your account by <a href='{verificationUri}'>clicking here</a>.", Subject = "Confirm Registration" }));
+                    //await _emailService.SendAsync(new EmailRequest() { From = "kehindeasishana@gmail.com", To = user.Email, Body = $"Please confirm your account by visiting this URL {verificationUri}", Subject = "Confirm Registration" });
                     return new Response<string>(user.Id.ToString(), message: $"User Registered. Please confirm your account by visiting this URL {verificationUri}");
                 }
                 else
