@@ -11,6 +11,13 @@ namespace HotelReserveMgt.Infrastructure.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public DateTime DateCreated { get; set; }
+        public bool? IsActive { get; set; }
+        public string LastModifiedBy { get; set; }
+
+        public DateTime? LastModifiedOn { get; set; }
+
+        public bool IsDeleted { get; set; }
         public List<RefreshToken> RefreshTokens { get; set; }
         public bool OwnsToken(string token)
         {

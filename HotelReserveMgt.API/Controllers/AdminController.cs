@@ -29,8 +29,6 @@ namespace HotelReserveMgt.API.Controllers
         public async Task<IActionResult> SetupRoomAsync(RoomRequestDto request)
         {
             var room = _mapper.Map<Room>(request);
-            //var res = await _roomService.CreateAsync(room);
-            //if (res != null) res.RoomStatus = true;
             return Ok(await _roomService.CreateAsync(room));
         }
         [HttpGet("dashboard")]

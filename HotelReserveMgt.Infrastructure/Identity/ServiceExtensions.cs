@@ -44,16 +44,16 @@ namespace HotelReserveMgt.Infrastructure.Identity
                 services.Configure<HotelMgtDatabaseSettings>(configuration.GetSection(nameof(HotelMgtDatabaseSettings)));
                 services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<HotelMgtDatabaseSettings>>().Value);
             }
-            services.AddIdentityMongoDbProvider<AppUser, MongoRole>(identity =>
-            {
-                identity.Password.RequiredLength = 8;
-            },
-            mongo =>
-            {
-                mongo.ConnectionString = mongoConnection;
-                //mongo.UsersCollection = "AppUser";
-                //mongo.RolesCollection = "MongoRole";
-            });
+            //services.AddIdentityMongoDbProvider<AppUser, MongoRole>(identity =>
+            //{
+            //    identity.Password.RequiredLength = 8;
+            //},
+            //mongo =>
+            //{
+            //    mongo.ConnectionString = mongoConnection;
+            //    //mongo.UsersCollection = "AppUser";
+            //    //mongo.RolesCollection = "MongoRole";
+            //});
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
             #region Services
             services.AddTransient<IAccountService, AccountService>();

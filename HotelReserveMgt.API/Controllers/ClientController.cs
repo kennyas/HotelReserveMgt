@@ -33,7 +33,6 @@ namespace HotelReserveMgt.API.Controllers
         [HttpPost("bookroom")]
         public async Task<IActionResult> BookRoomAsync([FromBody] RoomReservation roomRequest)
         {
-            //var room = _mapper.Map<Room>(request);
             return Ok(await _reservationService.CreateAsync(roomRequest));
         }
     }

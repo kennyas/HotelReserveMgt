@@ -1,6 +1,7 @@
 using HotelReserveMgt.API.Extensions;
 using HotelReserveMgt.API.Services;
 using HotelReserveMgt.Core.Interfaces;
+using HotelReserveMgt.Core.Mappings;
 using HotelReserveMgt.Infrastructure.Identity;
 using HotelReserveMgt.Infrastructure.Persistence;
 using HotelReserveMgt.Infrastructure.Shared;
@@ -38,6 +39,7 @@ namespace HotelReserveMgt.API
             services.AddPersistenceInfrastructure(_config);
             services.AddSharedInfrastructure(_config);
             services.AddSwaggerExtension();
+            services.AddAutoMapper(typeof(RoomProfile));
             services.AddControllers();
             services.AddApiVersioningExtension();
             services.AddHealthChecks();

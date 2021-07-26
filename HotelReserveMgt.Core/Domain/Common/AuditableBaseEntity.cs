@@ -9,8 +9,8 @@ namespace HotelReserveMgt.Core.Domain.Common
     public abstract class AuditableBaseEntity
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public virtual int Id { get; set; }
+        //[BsonRepresentation(BsonType.ObjectId)]
+        public virtual string Id { get; set; }
         public string CreatedBy { get; set; }
         public DateTime DateCreated { get; set; }
         public string LastModifiedBy { get; set; }

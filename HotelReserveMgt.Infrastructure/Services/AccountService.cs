@@ -24,20 +24,20 @@ namespace HotelReserveMgt.Infrastructure.Services
 {
     public class AccountService : IAccountService
     {
-        //private readonly UserManager<ApplicationUser> _userManager;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        //private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        //private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly SignInManager<AppUser> _signInManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        //private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
         private readonly JWTConfiguration _jwtSettings;
         private readonly IDateTimeService _dateTimeService;
-        public AccountService(UserManager<AppUser> userManager,
+        public AccountService(UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IOptions<JWTConfiguration> jwtSettings,
             IDateTimeService dateTimeService,
-            //SignInManager<ApplicationUser> signInManager,
-            SignInManager<AppUser> signInManager,
+            SignInManager<ApplicationUser> signInManager,
+            //SignInManager<AppUser> signInManager,
             IEmailService emailService)
         {
             _userManager = userManager;
@@ -85,20 +85,20 @@ namespace HotelReserveMgt.Infrastructure.Services
             {
                 throw new ApiException($"Username '{request.UserName}' is already taken.");
             }
-            //var user = new ApplicationUser
-            //{
-            //    Email = request.Email,
-            //    FirstName = request.FirstName,
-            //    LastName = request.LastName,
-            //    UserName = request.UserName
-            //};
-            var user = new AppUser
+            var user = new ApplicationUser
             {
                 Email = request.Email,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 UserName = request.UserName
             };
+            //var user = new AppUser
+            //{
+            //    Email = request.Email,
+            //    FirstName = request.FirstName,
+            //    LastName = request.LastName,
+            //    UserName = request.UserName
+            //};
             var userWithSameEmail = await _userManager.FindByEmailAsync(request.Email);
             if (userWithSameEmail == null)
             {
@@ -122,43 +122,7 @@ namespace HotelReserveMgt.Infrastructure.Services
             }
         }
 
-        //private async Task<JwtSecurityToken> GenerateJWToken(ApplicationUser user)
-        //{
-        //    var userClaims = await _userManager.GetClaimsAsync(user);
-        //    var roles = await _userManager.GetRolesAsync(user);
-
-        //    var roleClaims = new List<Claim>();
-
-        //    for (int i = 0; i < roles.Count; i++)
-        //    {
-        //        roleClaims.Add(new Claim("roles", roles[i]));
-        //    }
-
-        //    string ipAddress = IpHelper.GetIpAddress();
-
-        //    var claims = new[]
-        //    {
-        //        new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-        //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        //        new Claim(JwtRegisteredClaimNames.Email, user.Email),
-        //        new Claim("uid", user.Id),
-        //        new Claim("ip", ipAddress)
-        //    }
-        //    .Union(userClaims)
-        //    .Union(roleClaims);
-
-        //    var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-        //    var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
-
-        //    var jwtSecurityToken = new JwtSecurityToken(
-        //        issuer: _jwtSettings.Issuer,
-        //        audience: _jwtSettings.Audience,
-        //        claims: claims,
-        //        expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
-        //        signingCredentials: signingCredentials);
-        //    return jwtSecurityToken;
-        //}
-        private async Task<JwtSecurityToken> GenerateJWToken(AppUser user)
+        private async Task<JwtSecurityToken> GenerateJWToken(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
             var roles = await _userManager.GetRolesAsync(user);
@@ -177,7 +141,7 @@ namespace HotelReserveMgt.Infrastructure.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                //new Claim("uid", user.Id),
+                new Claim("uid", user.Id),
                 new Claim("ip", ipAddress)
             }
             .Union(userClaims)
@@ -194,6 +158,42 @@ namespace HotelReserveMgt.Infrastructure.Services
                 signingCredentials: signingCredentials);
             return jwtSecurityToken;
         }
+        //private async Task<JwtSecurityToken> GenerateJWToken(AppUser user)
+        //{
+        //    var userClaims = await _userManager.GetClaimsAsync(user);
+        //    var roles = await _userManager.GetRolesAsync(user);
+
+        //    var roleClaims = new List<Claim>();
+
+        //    for (int i = 0; i < roles.Count; i++)
+        //    {
+        //        roleClaims.Add(new Claim("roles", roles[i]));
+        //    }
+
+        //    string ipAddress = IpHelper.GetIpAddress();
+
+        //    var claims = new[]
+        //    {
+        //        new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+        //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        //        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+        //        //new Claim("uid", user.Id),
+        //        new Claim("ip", ipAddress)
+        //    }
+        //    .Union(userClaims)
+        //    .Union(roleClaims);
+
+        //    var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+        //    var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+        //    var jwtSecurityToken = new JwtSecurityToken(
+        //        issuer: _jwtSettings.Issuer,
+        //        audience: _jwtSettings.Audience,
+        //        claims: claims,
+        //        expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
+        //        signingCredentials: signingCredentials);
+        //    return jwtSecurityToken;
+        //}
         private string RandomTokenString()
         {
             using var rngCryptoServiceProvider = new RNGCryptoServiceProvider();
@@ -214,7 +214,7 @@ namespace HotelReserveMgt.Infrastructure.Services
         //    //Email Service Call Here
         //    return verificationUri;
         //}
-        private async Task<string> SendVerificationEmail(AppUser user, string origin)
+        private async Task<string> SendVerificationEmail(ApplicationUser user, string origin)
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

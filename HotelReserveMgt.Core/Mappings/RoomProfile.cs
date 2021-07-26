@@ -11,7 +11,7 @@ namespace HotelReserveMgt.Core.Mappings
     {
         public RoomProfile()
         {
-            CreateMap<RoomRequestDto, Room>();
+            CreateMap<RoomRequestDto, Room>().ReverseMap();
         }
     }
 }
