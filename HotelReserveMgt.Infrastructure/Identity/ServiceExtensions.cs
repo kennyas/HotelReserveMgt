@@ -27,7 +27,7 @@ namespace HotelReserveMgt.Infrastructure.Identity
     {
         public static void AddIdentityInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            var mongoConnection = configuration.GetConnectionString("HotelMgtDatabaseSettings");
+            var mongoConnection = configuration["HotelMgtDatabaseSettings:ConnectionString"]; //configuration.GetConnectionString("HotelMgtDatabaseSettings:ConnectionString");
             if (configuration.GetValue<bool>("UseInMemoryDatabase"))
             {
                 services.AddDbContext<IdentityContext>(options =>
@@ -39,7 +39,8 @@ namespace HotelReserveMgt.Infrastructure.Identity
                 //options.UseSqlServer(
                 //    configuration.GetConnectionString("IdentityConnection"),
                 //    b => b.MigrationsAssembly(typeof(IdentityContext).Assembly.FullName)));
-
+                services.AddDbContext<IdentityContext>(options =>
+                   options.UseInMemoryDatabase("IdentityDb"));
                 services.Configure<HotelMgtDatabaseSettings>(configuration.GetSection(nameof(HotelMgtDatabaseSettings)));
                 services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<HotelMgtDatabaseSettings>>().Value);
             }
@@ -50,8 +51,8 @@ namespace HotelReserveMgt.Infrastructure.Identity
             mongo =>
             {
                 mongo.ConnectionString = mongoConnection;
-                mongo.UsersCollection = "AppUser";
-                mongo.RolesCollection = "MongoRole";
+                //mongo.UsersCollection = "AppUser";
+                //mongo.RolesCollection = "MongoRole";
             });
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
             #region Services
