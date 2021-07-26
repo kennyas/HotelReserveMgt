@@ -7,6 +7,7 @@ using HotelReserveMgt.Core.Interfaces;
 using HotelReserveMgt.Core.Wrappers;
 using HotelReserveMgt.Infrastructure.Helpers;
 using HotelReserveMgt.Infrastructure.Models;
+using HotelReserveMgt.Infrastructure.Shared.Constants;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
@@ -105,7 +106,7 @@ namespace HotelReserveMgt.Infrastructure.Services
                 var result = await _userManager.CreateAsync(user, request.Password);
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, Roles.Client.ToString());
+                    await _userManager.AddToRoleAsync(user, Role.AdministratorRole.ToString());
                     var verificationUri = await SendVerificationEmail(user, origin);
                     //TODO: Attach Email Service here and configure it via appsettings
                     await _emailService.SendAsync(new EmailRequest() { From = "kehindeasishana@gmail.com", To = user.Email, Body = $"Please confirm your account by visiting this URL {verificationUri}", Subject = "Confirm Registration" });
@@ -122,6 +123,44 @@ namespace HotelReserveMgt.Infrastructure.Services
             }
         }
 
+        public async Task<Result<string>> SaveRoleAsync(RoleRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Id))
+            {
+                var existingRole = await _roleManager.FindByNameAsync(request.Name);
+                if (existingRole != null) return Result<string>.Fail($"Similar Role already exists.");
+                var response = await _roleManager.CreateAsync(new IdentityRole(request.Name));
+                return Result<string>.Success("Role Created");
+            }
+            else
+            {
+                var existingRole = await _roleManager.FindByIdAsync(request.Id);
+                if(existingRole != null)
+                {
+                    if (existingRole.Name == "Administrator" || existingRole.Name == "Basic")
+                    {
+                        return Result<string>.Fail($"Not allowed to modify {existingRole.Name} Role.");
+                    }
+                    existingRole.Name = request.Name;
+                    existingRole.NormalizedName = request.Name.ToUpper();
+                    await _roleManager.UpdateAsync(existingRole);
+                    return Result<string>.Success("Role Updated.");
+                }
+                else
+                {
+                    var appRole = new IdentityRole
+                    {
+                        Id = request.Id,
+                        Name = request.Name,
+                        NormalizedName = request.Name.ToUpper()
+                    };
+                    await _roleManager.CreateAsync(appRole);
+                }
+
+                return Result<string>.Success("Role Created Successfully.");
+
+            }
+        }
         private async Task<JwtSecurityToken> GenerateJWToken(ApplicationUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);

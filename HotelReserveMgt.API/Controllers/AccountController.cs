@@ -29,6 +29,12 @@ namespace HotelReserveMgt.API.Controllers
             var origin = Request.Headers["origin"];
             return Ok(await _accountService.RegisterAsync(request, origin));
         }
+        [HttpPost("create-role")]
+        public async Task<IActionResult> CreateRoleAsync(RoleRequest request)
+        {
+            var response = await _accountService.SaveRoleAsync(request);
+            return Ok(response);
+        }
         [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmailAsync([FromQuery]string userId, [FromQuery]string code)
         {

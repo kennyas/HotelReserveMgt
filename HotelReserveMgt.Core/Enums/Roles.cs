@@ -7,7 +7,7 @@ namespace HotelReserveMgt.Core.Enums
     public enum Roles
     {
         SuperAdmin,
-        Admin,
+        Administrator,
         Client
     }
 }
