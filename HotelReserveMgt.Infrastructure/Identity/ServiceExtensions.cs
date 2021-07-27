@@ -54,6 +54,7 @@ namespace HotelReserveMgt.Infrastructure.Identity
             //    //mongo.UsersCollection = "AppUser";
             //    //mongo.RolesCollection = "MongoRole";
             //});
+            services.Configure<MailConfiguration>(configuration.GetSection("MailConfiguration"));
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
             #region Services
             services.AddTransient<IAccountService, AccountService>();

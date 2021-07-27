@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,38 +40,44 @@ namespace HotelReserveMgt.Hangfire
             //var mongoConnection = Configuration.GetConnectionString("HotelMgtDatabaseSettings");
             var mongoConnection = Configuration["HotelMgtDatabaseSettings:ConnectionString"];
             //services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
-            // services.AddHangfire(configuration => configuration
-            //    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-            //    .UseSimpleAssemblyNameTypeSerializer()
-            //    .UseRecommendedSerializerSettings()
-            //    .UseMongoStorage(mongoConnection, "Hangfire", new MongoStorageOptions
+            
+
+            var mongoUrlBuilder = new MongoUrlBuilder(mongoConnection);
+            var mongoClient = new MongoClient(mongoUrlBuilder.ToMongoUrl());
+
+            // Add Hangfire services. Hangfire.AspNetCore nuget required
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseMongoStorage(mongoClient, mongoUrlBuilder.DatabaseName, new MongoStorageOptions
+                {
+                    MigrationOptions = new MongoMigrationOptions
+                    {
+                        MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                        BackupStrategy = new CollectionMongoBackupStrategy()
+                    },
+                    Prefix = "hangfire.mongo",
+                    CheckConnection = false
+                })
+            );
+            //services.Configure<HotelMgtDatabaseSettings>(Configuration.GetSection(nameof(HotelMgtDatabaseSettings)));
+            //services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<HotelMgtDatabaseSettings>>().Value);
+
+            //    var migrationOptions = new MongoMigrationOptions
             //    {
-            //        MigrationOptions = new MongoMigrationOptions
-            //        {
-            //            MigrationStrategy = new MigrateMongoMigrationStrategy(),
-            //            BackupStrategy = new CollectionMongoBackupStrategy()
-            //        },
-            //        Prefix = "hangfire.mongo",
-            //        CheckConnection = true
-            //    })
-            //);
-            services.Configure<HotelMgtDatabaseSettings>(Configuration.GetSection(nameof(HotelMgtDatabaseSettings)));
-            services.AddSingleton<IMongoDatabaseSettings>(x => x.GetRequiredService<IOptions<HotelMgtDatabaseSettings>>().Value);
+            //        MigrationStrategy = new MigrateMongoMigrationStrategy(),
+            //        BackupStrategy = new CollectionMongoBackupStrategy()
+            //    };
 
-            var migrationOptions = new MongoMigrationOptions
-            {
-                MigrationStrategy = new MigrateMongoMigrationStrategy(),
-                BackupStrategy = new CollectionMongoBackupStrategy()
-            };
+            //services.AddHangfire(config =>
+            //{
+            //    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
+            //    config.UseSimpleAssemblyNameTypeSerializer();
+            //    config.UseRecommendedSerializerSettings();
+            //    config.UseMongoStorage(mongoConnection, "Hangfire", new MongoStorageOptions { MigrationOptions = migrationOptions });
 
-            services.AddHangfire(config =>
-            {
-                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
-                config.UseSimpleAssemblyNameTypeSerializer();
-                config.UseRecommendedSerializerSettings();
-                config.UseMongoStorage(mongoConnection, "Hangfire", new MongoStorageOptions { MigrationOptions = migrationOptions });
-
-            });
+            //});
             services.AddHangfireServer();
             services.AddControllers();
             services.AddSwaggerGen(c =>
