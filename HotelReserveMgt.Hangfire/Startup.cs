@@ -36,8 +36,8 @@ namespace HotelReserveMgt.Hangfire
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var mongoConnection = Configuration.GetConnectionString("HotelMgtDatabaseSettings");
-
+            //var mongoConnection = Configuration.GetConnectionString("HotelMgtDatabaseSettings");
+            var mongoConnection = Configuration["HotelMgtDatabaseSettings:ConnectionString"];
             //services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
             // services.AddHangfire(configuration => configuration
             //    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
