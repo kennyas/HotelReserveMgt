@@ -7,11 +7,11 @@ namespace HotelReserveMgt.Core.Interfaces
 {
     public interface IRoomWorkflow
     {
-        void OnEntry();
-        void OnActivate();
-        void OnDeactivate();
-        void OnExit();
-        void Assign(RegisterRequest owner);
-        void Transfer(RegisterRequest owner);
+        void RoomCleaned();
+        void RoomBooked();
+        void RoomReleased();
+        void RoomAssigned();
+        void RoomAdded();
+        void Unavailable();
     }
 }

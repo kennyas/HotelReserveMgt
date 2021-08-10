@@ -15,7 +15,7 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
         protected bool _isSuccesful;
 
         public Room _roomData { get; set; }
-        public RegisterRequest _clientData { get; set; }
+       
 
         protected StateMachine<RoomState, RoomTrigger>.TriggerWithParameters<RegisterRequest> _assignTrigger;
         protected StateMachine<RoomState, RoomTrigger>.TriggerWithParameters<RegisterRequest> _transferTrigger;
@@ -51,84 +51,58 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
 
             _machine = new StateMachine<RoomState, RoomTrigger>(() => CurrentState, s => CurrentState = s);
 
-            //_assignTrigger = _machine.SetTriggerParameters<RegisterRequest>(RoomTrigger.Assigned);
-            //_transferTrigger = _machine.SetTriggerParameters<RegisterRequest>(RoomTrigger.Transferred);
-
-
             _machine.Configure(RoomState.New)
                     .Permit(RoomTrigger.Booked, RoomState.Reserved)
                     .PermitIf(RoomTrigger.Clean,RoomState.Cleaned)
                     .PermitReentry(RoomTrigger.Released);
-            //.OnEntry(() => OnEntry())
-            //.OnActivate(() => OnActivate())
-            //.Permit(RoomTrigger.Booked, RoomState.Unavailable)
-            //.OnDeactivate(() => OnDeactivate())
-            //.OnExit(() => OnExit());
-
+            
             _machine.Configure(RoomState.Reserved)
                      .Permit(RoomTrigger.Assigned, RoomState.Occupied);
-            // .Permit(RoomTrigger.Booked, RoomState.Unavailable)
-            // .OnExit(() => OnExit())
-            //.OnEntryFrom(RoomTrigger.Released, () => ProcessDecommission())
-            // .OnDeactivate(() => OnDeactivate());
-
+            
 
             _machine.Configure(RoomState.Occupied)
                     .Permit(RoomTrigger.RoomKeyObtained, RoomState.Unavailable);
-                    //.OnEntry(() => OnEntry())
-                    //.OnEntryFrom(_assignTrigger, owner => SetOwner(owner))
-                    //.OnEntryFrom(_transferTrigger, owner => SetOwner(owner))
-                    //.OnActivate(() => OnActivate())
-                    //.OnExit(() => OnExit())
-                    //.OnDeactivate(() => OnDeactivate())
-                    //.PermitReentry(RoomTrigger.Transferred)
-                    //.Permit(RoomTrigger.Released, RoomState.Free)
-                    //.Permit(RoomTrigger.Booked, RoomState.Unavailable);
-
-
-
-            //_machine.Configure(RoomState.Unavailable)
-            //        .OnEntry(() => OnEntry())
-            //        .OnActivate(() => OnActivate())
-            //        .OnExit(() => OnExit())
-            //        .OnDeactivate(() => OnDeactivate());
-           
+                   
 
         }
 
-        private void SetOwner(RegisterRequest owner)
+        //private void SetOwner(RegisterRequest owner)
+        //{
+        //    _roomData.Client = owner;
+        //}
+
+        //private void ProcessDecommission()
+        //{
+        //    Console.WriteLine("Clearing Client Data..");
+        //    _roomData.Client = null;
+        //    OnEntry();
+        //}
+
+
+        public void RoomCleaned()
         {
-            _roomData.Client = owner;
+            //Console.WriteLine($"Entering {_state.ToString()} ...");
+            _machine.Fire(RoomTrigger.Clean);
         }
 
-        private void ProcessDecommission()
+        public void RoomAdded()
         {
-            Console.WriteLine("Clearing Client Data..");
-            _roomData.Client = null;
-            OnEntry();
+            _machine.Fire(RoomTrigger.AddRoom);
         }
 
-
-        public void OnEntry()
+        public void RoomReleased()
         {
-            Console.WriteLine($"Entering {_state.ToString()} ...");
+            _machine.Fire(RoomTrigger.Released);
         }
 
-        public void OnActivate()
+        public void RoomAssigned()
         {
-            Console.WriteLine($"Activating {_state.ToString()} ...");
+            _machine.Fire(RoomTrigger.Assigned);
         }
-
-        public void OnDeactivate()
+        public void Unavailable()
         {
-            Console.WriteLine($"Deactivating {_state.ToString()} ...");
+            _machine.Fire(RoomTrigger.Unavailable);
         }
-
-        public void OnExit()
-        {
-            Console.WriteLine($"Exiting {_state.ToString()} ...");
-        }
-
         public void Fire(RoomTrigger trigger)
         {
             _isSuccesful = false;
@@ -144,52 +118,26 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
             }
         }
 
-        //public void FinishedTesting()
+        //public void Assign(RegisterRequest owner)
         //{
-        //    Fire(RoomTrigger.Tested);
+        //    _isSuccesful = false;
+        //    try
+        //    {
+        //        _machine.Fire(_assignTrigger, owner);
+        //        _isSuccesful = true;
+        //    }
+        //    catch
+        //    {
+        //        Console.WriteLine("Error during state transition.");
+        //        _isSuccesful = false;
+        //    }
         //}
 
-        public void Assign(RegisterRequest owner)
+        public void RoomBooked()
         {
-            _isSuccesful = false;
-            try
-            {
-                _machine.Fire(_assignTrigger, owner);
-                _isSuccesful = true;
-            }
-            catch
-            {
-                Console.WriteLine("Error during state transition.");
-                _isSuccesful = false;
-            }
-        }
-
-        public void Release()
-        {
-            Fire(RoomTrigger.Released);
+            Fire(RoomTrigger.Booked);
         }
 
 
-        public void Transfer(RegisterRequest owner)
-        {
-            _isSuccesful = false;
-            try
-            {
-                _machine.Fire(_transferTrigger, owner);
-                _isSuccesful = true;
-            }
-            catch
-            {
-                Console.WriteLine("Error during state transition.");
-                _isSuccesful = false;
-            }
-        }
-
-
-
-        public bool IsSuccessful()
-        {
-            return _isSuccesful;
-        }
     }
 }

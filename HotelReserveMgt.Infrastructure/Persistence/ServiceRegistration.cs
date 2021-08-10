@@ -5,6 +5,7 @@ using HotelReserveMgt.Core.Interfaces;
 using HotelReserveMgt.Infrastructure.Persistence.Contexts;
 using HotelReserveMgt.Infrastructure.Persistence.Repositories;
 using HotelReserveMgt.Infrastructure.Services;
+using HotelReserveMgt.Infrastructure.WorkFlows;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,6 +68,8 @@ namespace HotelReserveMgt.Infrastructure.Persistence
             services.AddTransient<IClientService, ClientService>();
             services.AddTransient<IRoomService, RoomService>();
             services.AddTransient<IReservationService, ReservationService>();
+            services.AddScoped<IClientWorkFlow, ClientWorkFlow>();
+            services.AddScoped<IRoomWorkflow, RoomWorkflow>();
             #endregion
         }
 

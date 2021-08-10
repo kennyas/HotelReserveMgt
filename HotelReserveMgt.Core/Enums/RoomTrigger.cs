@@ -12,6 +12,7 @@ namespace HotelReserveMgt.Core.Enums
         RoomKeyObtained,
         Transferred,
         Released,
+        Unavailable,
         Clean
     };
 

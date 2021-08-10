@@ -13,16 +13,10 @@ namespace HotelReserveMgt.Infrastructure.Services
     public class ReservationService : IGenericRepositoryAsync<RoomReservation>, IReservationService
     {
         private readonly IMongoCollection<RoomReservation> _context;
-        //public ReservationService(IMongoDatabaseSettings settings)
-        //{
-        //    var client = new MongoClient(settings.ConnectionString);
-        //    var database = client.GetDatabase(settings.DatabaseName);
-        //    _context = database.GetCollection<RoomReservation>(settings.CollectionName);
-        //}
-        public ReservationService(IMongoCollection<RoomReservation> context)
+        private readonly IClientWorkFlow _clientWorkFlow;
+        public ReservationService(IClientWorkFlow clientWorkFlow, IMongoCollection<RoomReservation> context)
         {
-            //var client = new MongoClient(settings.ConnectionString);
-            //var database = client.GetDatabase(settings.DatabaseName);
+            _clientWorkFlow = clientWorkFlow;
             _context = context;//database.GetCollection<RoomReservation>(settings.CollectionName);
         }
         public async Task<List<RoomReservation>> GetAllAsync()
@@ -38,6 +32,7 @@ namespace HotelReserveMgt.Infrastructure.Services
         public async Task<RoomReservation> CreateAsync(RoomReservation obj)
         {
             await _context.InsertOneAsync(obj);
+            _clientWorkFlow.BookedRoom();
             return obj;
         }
 
@@ -49,6 +44,7 @@ namespace HotelReserveMgt.Infrastructure.Services
         public async Task DeleteAsync(string id)
         {
             await _context.DeleteOneAsync(id);
+            _clientWorkFlow.Checkout();
         }
     }
 }

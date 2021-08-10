@@ -1,4 +1,5 @@
 ﻿using HotelReserveMgt.Core.Enums;
+using HotelReserveMgt.Core.Interfaces;
 using Stateless;
 using Stateless.Graph;
 using System;
@@ -9,11 +10,8 @@ using System.Threading.Tasks;
 
 namespace HotelReserveMgt.Infrastructure.WorkFlows
 {
-    //public class ClientWorkFlow
-    //{
-    //}
-
-    public class ClientWorkFlow
+    
+    public class ClientWorkFlow: IClientWorkFlow
     {
        
 
@@ -45,7 +43,6 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
 
             _machine.Configure(ClientState.Checkin)
                 .Permit(ClientTrigger.CheckedOut, ClientState.Checkout);
-            //.Permit(ClientTrigger.PlacedOnHold, State.OnHold);
 
             _machine.Configure(ClientState.Checkout)
                 .SubstateOf(ClientState.Checkin)
@@ -57,33 +54,40 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
         void OnRegistered(string roomId)
         {
             _room = roomId;
+            _machine.Fire(ClientTrigger.Register);
             Console.WriteLine("Order placed for room : [{0}]", _room);
         }
 
-       
-        public void Registered(string callee)
-        {
-            _machine.Fire(_setCalleeTrigger, callee);
-        }
-
-        public void Booked()
+        public void OnClientRegistered()
         {
             _machine.Fire(ClientTrigger.Register);
         }
 
-        public void Occupied()
+        public void Registered()
+        {
+            _machine.Fire(ClientTrigger.ConfirmationMail);
+        }
+
+        public void BookedRoom()
         {
             _machine.Fire(ClientTrigger.BookRoom);
         }
 
+        public void Occupied()
+        {
+            _machine.Fire(ClientTrigger.Occupy);
+        }
+
         public void Checkout()
         {
-            _machine.Fire(ClientTrigger.ConfirmationMail);
+            _machine.Fire(ClientTrigger.CheckedOut);
         }
 
         public string ToDotGraph()
         {
             return UmlDotGraph.Format(_machine.GetInfo());
         }
+
+
     }
 }

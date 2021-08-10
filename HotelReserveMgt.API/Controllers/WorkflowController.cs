@@ -22,7 +22,7 @@ namespace HotelReserveMgt.API.Controllers
         public IActionResult CreateAsset(Room request)
         {
             var origin = Request.Headers["origin"];
-            _workflowService.OnActivate();
+            _workflowService.RoomAdded();
             return Ok();
         }
     }

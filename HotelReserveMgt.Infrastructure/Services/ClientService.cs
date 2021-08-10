@@ -15,19 +15,12 @@ namespace HotelReserveMgt.Infrastructure.Services
     {
         private readonly IMongoCollection<Customer> _context;
         private readonly IRoomService _roomService;
-        //public ClientService(IRoomService roomService, IMongoDatabaseSettings settings)
-        //{
-        //    _roomService = roomService;
-        //    var client = new MongoClient(settings.ConnectionString);
-        //    var database = client.GetDatabase(settings.DatabaseName);
-        //    _context = database.GetCollection<Customer>(settings.CollectionName);
-        //}
-        public ClientService(IRoomService roomService, IMongoCollection<Customer> context)
+        private readonly IRoomWorkflow _roomWorkflow;
+        public ClientService(IRoomService roomService, IRoomWorkflow roomWorkflow, IMongoCollection<Customer> context)
         {
             _roomService = roomService;
-            //var client = new MongoClient(settings.ConnectionString);
-            //var database = client.GetDatabase(settings.DatabaseName);
-            _context = context;//database.GetCollection<Customer>(settings.CollectionName);
+            _roomWorkflow = roomWorkflow;
+            _context = context;
         }
         public async Task<List<Customer>> GetAllAsync()
         {
@@ -42,6 +35,7 @@ namespace HotelReserveMgt.Infrastructure.Services
         public async Task<Customer> CreateAsync(Customer obj)
         {
             await _context.InsertOneAsync(obj);
+            _roomWorkflow.RoomAdded();
             return obj;
         }
 
@@ -53,6 +47,7 @@ namespace HotelReserveMgt.Infrastructure.Services
         public async Task DeleteAsync(string id)
         {
             await _context.DeleteOneAsync(id);
+            _roomWorkflow.Unavailable();
         }
 
         public async Task<DashboardResponseDto> DashboardRecord()
