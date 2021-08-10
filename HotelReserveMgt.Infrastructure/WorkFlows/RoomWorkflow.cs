@@ -14,19 +14,19 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
         protected RoomState _previousState;
         protected bool _isSuccesful;
 
-        public Room _roomData { get; set; }
+        //public Room _roomData { get; set; }
        
 
         protected StateMachine<RoomState, RoomTrigger>.TriggerWithParameters<RegisterRequest> _assignTrigger;
         protected StateMachine<RoomState, RoomTrigger>.TriggerWithParameters<RegisterRequest> _transferTrigger;
         public RoomState CurrentState = RoomState.New;
 
-        public RoomWorkflow(Room data)
-        {
-            InitializeStateMachine();
-            _roomData = data;
+        //public RoomWorkflow(Room data)
+        //{
+        //    InitializeStateMachine();
+        //    _roomData = data;
 
-        }
+        //}
 
         public RoomState AssetState
         {
@@ -38,8 +38,6 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
             {
                 _previousState = _state;
                 _state = value;
-                Console.WriteLine("------------------------");
-                Console.WriteLine($"Room No : {_roomData.Id.ToString()}");
                 Console.WriteLine($"Previous Room state : {_previousState.ToString()}");
                 Console.WriteLine($"New Room state : {_state.ToString()}");
             }

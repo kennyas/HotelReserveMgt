@@ -22,13 +22,13 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
 
         StateMachine<ClientState, ClientTrigger>.TriggerWithParameters<string> _setCalleeTrigger;
 
-        string _client;
+        //string _client;
 
-        string _room;
+        //string _room;
 
-        public ClientWorkFlow(string client)
+        public ClientWorkFlow()
         {
-            _client = client;
+           // _client = client;
             _machine = new StateMachine<ClientState, ClientTrigger>(() => _state, s => _state = s);
 
             _setVolumeTrigger = _machine.SetTriggerParameters<int>(ClientTrigger.Register);
@@ -53,9 +53,9 @@ namespace HotelReserveMgt.Infrastructure.WorkFlows
 
         void OnRegistered(string roomId)
         {
-            _room = roomId;
+            //_room = roomId;
             _machine.Fire(ClientTrigger.Register);
-            Console.WriteLine("Order placed for room : [{0}]", _room);
+            //Console.WriteLine("Order placed for room : [{0}]", _room);
         }
 
         public void OnClientRegistered()

@@ -68,8 +68,8 @@ namespace HotelReserveMgt.Infrastructure.Persistence
             services.AddTransient<IClientService, ClientService>();
             services.AddTransient<IRoomService, RoomService>();
             services.AddTransient<IReservationService, ReservationService>();
-            services.AddScoped<IClientWorkFlow, ClientWorkFlow>();
-            services.AddScoped<IRoomWorkflow, RoomWorkflow>();
+            services.AddTransient<IClientWorkFlow, ClientWorkFlow>();
+            services.AddTransient<IRoomWorkflow, RoomWorkflow>();
             #endregion
         }
 
